@@ -64,6 +64,11 @@
       color: var(--accent);
     }
 
+    .tabs button:focus-visible {
+      outline: 0px;
+      outline-offset: 0px;
+    }
+
     .viewer {
       overflow: hidden;
       border: 1px solid var(--border);
@@ -101,7 +106,7 @@
 
     <div class="tabs" role="tablist" aria-label="Thesis documents">
       <button
-        id="tab-mind-wandering"
+        id="mind-wandering"
         type="button"
         role="tab"
         aria-selected="true"
@@ -110,7 +115,7 @@
       </button>
 
       <button
-        id="tab-novelty-seeking"
+        id="novelty-seeking"
         type="button"
         role="tab"
         aria-selected="false"
@@ -120,7 +125,7 @@
       </button>
 
       <button
-        id="tab-thesis-pdf"
+        id="thesis-pdf"
         type="button"
         role="tab"
         aria-selected="false"
@@ -134,7 +139,7 @@
       class="viewer"
       id="panel-mind-wandering"
       role="tabpanel"
-      aria-labelledby="tab-mind-wandering">
+      aria-labelledby="mind-wandering">
       <iframe
         src="https://mfr.de-1.osf.io/render?url=https%3A%2F%2Fosf.io%2Fdownload%2Fmbdg3%2F%3Fdirect%26mode%3Drender"
         scrolling="yes"
@@ -150,7 +155,7 @@
       class="viewer"
       id="panel-novelty-seeking"
       role="tabpanel"
-      aria-labelledby="tab-novelty-seeking"
+      aria-labelledby="novelty-seeking"
       hidden>
       <iframe
         src="https://mfr.de-1.osf.io/render?url=https%3A%2F%2Fosf.io%2Fdownload%2Fqjspu%2F%3Fdirect%26mode%3Drender"
@@ -167,7 +172,7 @@
       class="viewer"
       id="panel-thesis-pdf"
       role="tabpanel"
-      aria-labelledby="tab-thesis-pdf"
+      aria-labelledby="thesis-pdf"
       hidden>
       <iframe
         src="https://mfr.de-1.osf.io/render?url=https%3A%2F%2Fosf.io%2Fdownload%2F9y273%2F%3Fdirect%26mode%3Drender"
@@ -184,17 +189,27 @@
   <script>
     const tabs = [...document.querySelectorAll('[role="tab"]')];
 
-    function selectTab(selectedTab) {
-      tabs.forEach((tab) => {
-        const selected = tab === selectedTab;
-        tab.setAttribute("aria-selected", String(selected));
-        tab.tabIndex = selected ? 0 : -1;
+    function selectTab(tab, updateUrl = true) {
+      tabs.forEach((item) => {
+        const selected = item === tab;
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
 
         const panel = document.getElementById(
-          tab.getAttribute("aria-controls")
+          item.getAttribute("aria-controls")
         );
         panel.hidden = !selected;
       });
+
+      if (updateUrl) {
+        history.replaceState(null, "", "#" + tab.id);
+      }
+    }
+
+    function selectTabFromHash() {
+      const tabId = location.hash.slice(1);
+      const matchingTab = tabs.find((tab) => tab.id === tabId);
+      selectTab(matchingTab || tabs[0], false);
     }
 
     tabs.forEach((tab, index) => {
@@ -210,6 +225,9 @@
         }
       });
     });
+
+    window.addEventListener("hashchange", selectTabFromHash);
+    selectTabFromHash();
   </script>
 </body>
 </html>
